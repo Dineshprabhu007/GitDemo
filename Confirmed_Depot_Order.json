@@ -1,0 +1,308 @@
+{   "udcBatchCorrelationID":"STDS-A822501-2304030801",
+    "standardBusinessDocumentHeader": {
+        "headerVersion": "1.0",
+        "sender": [
+            {
+                "identifier": "J.SAINSBURY PLC",
+                "contactInformation": {
+                    "contactTypeIdentifier": "Purchase Order Management"
+                }
+            }
+        ],
+        "receiver": [
+            {
+                "identifier": "TRUECOMMERCE",
+                "contactInformation": {
+                    "contactTypeIdentifier": "EDI co-ordinator"
+                }
+            },
+            {
+                "identifier": "J.SAINSBURY PLC",
+                "contactInformation": {
+                    "contactTypeIdentifier": "Purchase Order Management consumers"
+                }
+            }
+        ],
+        "documentIdentification": {
+            "standard": "GS1",
+            "typeVersion": "3.5",
+            "instanceIdentifier": "1202hare-214k-4759-ri39-shn005221jjkl",
+            "type": "PurchaseOrder",
+            "multipleType": false,
+            "creationDateAndTime": "2023-09-26T01:01:55.064Z"
+        }
+    },
+    "order": [
+        {
+            "creationDateTime": "2023-09-26T01:01:55.064Z",
+            "documentStatusCode": "ORIGINAL",
+            "documentActionCode": "ADD",
+            "documentStructureVersion": "3.5",
+            "lastUpdateDateTime": "2023-09-26T01:01:55.064Z",
+            "revisionNumber": 0,
+            "documentEffectiveDate": {
+                "date": "2023-09-26",
+                "time": "01:01:55"
+            },
+            "orderIdentification": {
+                "entityIdentifier": "00722489"
+            },
+            "orderTypeCode": "220",
+            "buyer": {},
+            "seller": {},
+            "pickupFrom": {
+                    "additionalPartyIdentification": [
+                        {
+                            "additionalPartyIdentificationTypeCode": "FOR_INTERNAL_USE_1",
+                            "additionalPartyIdentificationValue": "xwgndye5"
+                        },
+                        {
+                            "additionalPartyIdentificationTypeCode": "FOR_INTERNAL_USE_2",
+                            "additionalPartyIdentificationValue": "A8225"
+                        },
+                        {
+                            "additionalPartyIdentificationTypeCode": "FOR_INTERNAL_USE_3",
+                            "additionalPartyIdentificationValue": "02"
+                        }
+                    ]
+                },
+            "orderLogisticalInformation": {
+                "shipFrom": {
+                    "additionalPartyIdentification": [
+                        {
+                            "additionalPartyIdentificationTypeCode": "FOR_INTERNAL_USE_1",
+                            "additionalPartyIdentificationValue": "xwgndyt6"
+                        },
+                        {
+                            "additionalPartyIdentificationTypeCode": "FOR_INTERNAL_USE_2",
+                            "additionalPartyIdentificationValue": "A1781"
+                        }
+                    ]
+                },
+                "shipTo": {
+                    "additionalPartyIdentification": [
+                        {
+                            "additionalPartyIdentificationTypeCode": "FOR_INTERNAL_USE_1",
+                            "additionalPartyIdentificationValue": "7q7yxh"
+                        },
+                        {
+                            "additionalPartyIdentificationTypeCode": "FOR_INTERNAL_USE_2",
+                            "additionalPartyIdentificationValue": "7"
+                        }
+                    ]
+                },
+                "orderLogisticalDateInformation": {
+                    "requestedDeliveryDateTime": {
+                        "date": "2023-10-30",
+                        "time": "06:00"
+                    }
+                }
+            },
+            "avpList": [
+                {
+                    "name": "udcOrderformat",
+                    "value": "Confirmed"
+                },
+                {
+                    "name": "udcIsordermultilocation",
+                    "value": false
+                },
+                {
+                    "name": "udcOrderid",
+                    "value": "A17810072248922327"
+                },
+                {
+                    "name": "udcOrderstatus",
+                    "value": "Issued"
+                },
+                {
+                    "name": "udcOrderclass",
+                    "value": "StockedDepotOrder"
+                },
+                {
+                    "name": "udcMessageid",
+                    "value": "Z90650397671524164P20240610093839667"
+                },
+                {
+                    "name": "udcChamberNumber",
+                    "value": "7"
+                },
+                {
+                    "name": "udcMessageSource",
+                    "value": "SDD"
+                },
+                {
+                    "name": "udcActionType",
+                    "value": "MANUAL_ORDER"
+                },
+                {
+                    "name": "udcActionedBy",
+                    "value": "testUser"
+                },
+                {
+                    "name": "udcActionReason",
+                    "value": "JS_INITIATED"
+                },
+                {
+                    "name": "udcCommtype",
+                    "value": "Both"
+                },
+                {
+                    "name": "udcVehiclenumber",
+                    "value": "22490"
+                },
+                {
+                    "name": "udcBookingnumber",
+                    "value": "EL0965"
+                },
+                {
+                    "name": "udcSupplygroupnumber",
+                    "value": "A822501"
+                },
+                {
+                    "name": "udcForecastedpallets",
+                    "value": null
+                },
+                {
+                    "name": "udcBookedpallets",
+                    "value": "24"
+                }
+                ,
+                {
+                    "name": "udcLegacyReference",
+                    "value": "A1781412"
+                }
+            ],
+            "orderLineItem": [
+                {
+                    "lineItemNumber": 1,
+                    "requestedQuantity": {
+                        "measurementUnitCode": "CS",
+                        "value": 800
+                    },
+                    "lineItemActionCode": "ADDITION",
+                    "transactionalTradeItem": {
+                        "gtin": "05010044080192",
+                        "additionalTradeItemIdentification": [
+                            {
+                                "additionalTradeItemIdentificationTypeCode": "FOR_INTERNAL_USE_1",
+                                "additionalTradeItemIdentificationValue": "1j6g3840"
+                            },
+                            {
+                                "additionalTradeItemIdentificationTypeCode": "FOR_INTERNAL_USE_2",
+                                "additionalTradeItemIdentificationValue": "7652484"
+                            }
+                        ],
+                        "tradeItemDescription": "Description of 7652484"
+                    },
+                    "avpList": [
+                        {
+                            "name": "udcPacksize",
+                            "value": 14
+                        },
+                        {
+                             "name": "udcQuantityOrderedStandardUnits",
+                             "value": "11200"
+                        },
+                        {
+                             "name": "udcStandardMeasurementUnitCode",
+                             "value": "KG"
+                        },
+                        {
+                             "name": "udcOutstandingQuantity",
+                             "value": "11200"
+                        },
+                        {
+                            "name": "udcOrderplacementdate",
+                            "value": 19443
+                        },
+                        {
+                            "name": "udcOrderplanid",
+                            "value": null
+                        },
+                        {
+                            "name": "udcCorporateOwnershipOwner",
+                            "value": "GROUP_OWNED"
+                        },
+                        {
+                            "name": "udcCorporateOwnershipSubOwner",
+                            "value": "SAINSBURYS"
+                        },
+                        {
+                            "name": "udcCorporateOwnershipType",
+                            "value": "PCC"
+                        },
+                        {
+                            "name": "udcLineItemStatus",
+                            "value": "Issued"
+                        }
+                    ]
+                },
+                {
+                    "lineItemNumber": 2,
+                    "requestedQuantity": {
+                        "measurementUnitCode": "CS",
+                        "value": 1440
+                    },
+                    "lineItemActionCode": "ADDITION",
+                    "transactionalTradeItem": {
+                        "gtin": "05010044080999",
+                        "additionalTradeItemIdentification": [
+                            {
+                                "additionalTradeItemIdentificationTypeCode": "FOR_INTERNAL_USE_1",
+                                "additionalTradeItemIdentificationValue": "1k003840"
+                            },
+                            {
+                                "additionalTradeItemIdentificationTypeCode": "FOR_INTERNAL_USE_2",
+                                "additionalTradeItemIdentificationValue": "7861816"
+                            }
+                        ],
+                        "tradeItemDescription": "Description of 7861816"
+                    },
+                    "avpList": [
+                        {
+                            "name": "udcPacksize",
+                            "value": 12
+                        },
+                        {
+                            "name": "udcQuantityOrderedStandardUnits",
+                            "value": "17280"
+                        },
+                        {
+                            "name": "udcStandardMeasurementUnitCode",
+                            "value": "KG"
+                        },
+                        {
+                             "name": "udcOutstandingQuantity",
+                             "value": "17280"
+                        },
+                        {
+                            "name": "udcOrderplacementdate",
+                            "value": 19443
+                        },
+                        {
+                            "name": "udcOrderplanid",
+                            "value": null
+                        },
+                        {
+                            "name": "udcCorporateOwnershipOwner",
+                            "value": "GROUP_OWNED"
+                        },
+                        {
+                            "name": "udcCorporateOwnershipSubOwner",
+                            "value": "SAINSBURYS"
+                        },
+                        {
+                            "name": "udcCorporateOwnershipType",
+                            "value": "PCC"
+                        },
+                        {
+                            "name": "udcLineItemStatus",
+                            "value": "Issued"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
