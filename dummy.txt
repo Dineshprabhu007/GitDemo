@@ -1,0 +1,100 @@
+using LogisticsPlatform.ACL.Publish.Infrastructure.Options;
+using LogisticsPlatform.Logger.Component;
+using LogisticsPlatform.Reference.Location.Component.Platform.Version1_0.Models;
+using LogisticsPlatform.Reference.Product.Component.Platform.Version1_0.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+
+namespace LogisticsPlatform.ACL.Publish.Infrastructure;
+
+[ExcludeFromCodeCoverage]
+public static class DependencyInjection
+{
+    public static IServiceCollection ConfigureInfrastructure(this IServiceCollection services)
+    {
+        // Add Options
+       
+        services.ConfigureOptions<ConfigureAzureBlobSettings>();
+        services.ConfigureOptions<ConfigureMongoDbSettings>();
+        services.ConfigureAzureSettings();
+        services.ConfigureKafkaSettings<KafkaSettings>();
+        services.ConfigureMongoSettings<MongoDbSettings>();
+        services.ConfigureOptions<ConfigureAppSettings>();
+
+        services.AddSingleton<IDepotRepository, DepotRepository>();
+        services.AddSingleton<ILocationRepository, LocationRepository>();
+        services.AddSingleton<IProductRepository, ProductRepository>();
+        services.AddSingleton<ISupplierGroupRepository, SupplierGroupRepository>();
+        services.AddSingleton<IMasterSupplierGroupRepository, MasterSupplierGroupRepository>();
+        // Add Azure
+        services.AddAzureConnector();
+
+        // Add Kafka
+        services.AddKafka();
+
+        // Add Logger
+        services.AddCustomLogging();
+
+        // Add Mongo
+        services.AddMongoWithRepositories();
+
+        BsonClassMap.RegisterClassMap<ProductPlatform>(map =>
+        {
+            map.AutoMap();
+            map.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
+        });
+
+        BsonClassMap.RegisterClassMap<LocationPlatform>(map =>
+        {
+            map.AutoMap();
+            map.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
+        });
+
+        return services;
+    }
+}
+
+using LogisticsPlatform.ACL.Publish.Application.Mapper;
+using LogisticsPlatform.ACL.Publish.Application.Processor;
+using LogisticsPlatform.ACL.Publish.Application.Service;
+using LogisticsPlatform.ACL.Publish.Application.Subscriber;
+using LogisticsPlatform.ACL.Publish.Domain.Interfaces;
+using LogisticsPlatform.Common.Extensions.Mongo.Services;
+
+namespace LogisticsPlatform.ACL.Publish.Application;
+
+[ExcludeFromCodeCoverage]
+public static class DependencyInjection
+{
+    public static IServiceCollection ConfigureApplication(this IServiceCollection services)
+    {
+        services.AddSingleton<IFlatFileToClassConverter, FlatFileToClassConverter>();
+        services.AddSingleton<ICSVToClassConverter, CSVToClassConverter>();
+
+        services.AddSingleton<IDataMapper, DataMapper>();
+        services.AddSingleton<IFileSubscriber, FileSubscriber>();
+        services.AddSingleton<IFileProcessor, FileProcessor>();
+        services.AddSingleton<IFileSequenceNumberRepository, FileSequenceNumberRepository>();
+
+        services.AddHostedService<MongoIndexService>();
+        services.AddHostedService<ReprocessService>();
+        services.AddHostedService<FileService>();
+
+        return services;
+    }
+}
+
+using LogisticsPlatform.ACL.Publish.Application;
+using LogisticsPlatform.ACL.Publish.Infrastructure;
+
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .ConfigureInfrastructure()
+    .ConfigureApplication();
+
+await builder.Build().RunAsync();
+
+[ExcludeFromCodeCoverage]
+public static partial class Program { }
