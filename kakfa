@@ -1,0 +1,48 @@
+using var consumer = new ConsumerBuilder<Ignore, AsrsRequest<LabelRequestModel>>(config).SetAvroValueDeserializer(registry, TombstoneBehavior.Strict).SetLogHandler((_, logMessage) => { if (logMessage.Level == SyslogLevel.Critical) Console.WriteLine($"Consume Kafka Topic Log Handler Message: {logMessage.Message}"); }).Build();
+            var count = 0;
+            var watch = Stopwatch.StartNew();
+            int elapsedSeconds = 0;
+            Console.WriteLine($"{DateTime.Now}: Starting to consume from {topic}");
+ 
+            consumer.Subscribe(topic.Split(',', StringSplitOptions.RemoveEmptyEntries));
+ 
+            ConsumeResult<Ignore, AsrsRequest<LabelRequestModel>> msg = new();
+            while (elapsedSeconds <= waitTime)
+            {
+                try
+                {
+ 
+                    elapsedSeconds = Convert.ToInt16(watch.Elapsed.TotalSeconds);
+                    msg = consumer.Consume(new TimeSpan(0, 0, count <= 0 ? waitTime : 15));
+                    if (msg != null && msg.Message != null)
+                    {
+                        if (!string.IsNullOrEmpty(actualQueuePath))
+                        {
+                            count = count + 1;
+                            var storeResultJSON = JsonConvert.SerializeObject(msg.Message.Value, Formatting.None,
+                                new JsonSerializerSettings
+                                {
+                                    NullValueHandling = NullValueHandling.Ignore
+                                });
+                            FileHelper.WriteLine($"{actualQueuePath}/{actualFilePrefix}{count}.json", storeResultJSON);
+                        }
+                        else
+                        {
+                            string str = msg.Message.Value.ToString();
+                        }
+                        consumer.Commit(msg);
+                    }
+                    else
+                    {
+                        continue;
+                        break;
+                    }
+ 
+ 
+                    count++;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception: {ex.Message}");
+                }
+            }
