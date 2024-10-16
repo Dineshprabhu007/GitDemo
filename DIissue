@@ -1,0 +1,80 @@
+class Main
+{
+public static void main(string[]args)
+{
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .ConfigureInfrastructure()
+    .ConfigureApplication();
+
+await builder.Build().RunAsync();
+
+
+[ExcludeFromCodeCoverage]
+public static partial class Program { }
+}
+
+using LogisticsPlatform.Common.Extensions.Mongo.Settings;
+using LogisticsPlatform.Connector.Subscribe.Infrastructure.HealthChecks;
+using LogisticsPlatform.Connector.Subscribe.Infrastructure.Options;
+using LogisticsPlatform.Logger.Component;
+
+namespace LogisticsPlatform.Connector.Subscribe.Infrastructure;
+
+[ExcludeFromCodeCoverage]
+public static class DependencyInjection
+{
+    public static IServiceCollection ConfigureInfrastructure(this IServiceCollection services)
+    {
+        // Add Options
+        services.ConfigureOptions<ConfigureAppSettings>();
+        services.ConfigureOptions<ConfigureMongoDbSettings>();
+        services.ConfigureOptions<ConfigureAzureBlobSettings>();
+        services.ConfigureOptions<ConfigureKafkaSettings>();
+        services.ConfigureAzureSettings<AzureBlobSettings>();
+        services.ConfigureKafkaSettings<KafkaSettings>();
+        services.ConfigureMongoSettings<MongoDbSettings>();
+       
+
+        services.AddSingleton<IPurchaseOrderRepository, PurchaseOrderRepository>();
+        services.AddSingleton<IProductPlatformRepository, ProductPlatformRepository>();
+        services.AddSingleton<IAuditRepository,AuditRepository>();
+        // Add Azure
+        services.AddAzureConnector();
+
+        // Add Kafka
+        services.AddKafka();
+
+        // Add Health checks
+        services.AddHealthChecks()
+            .AddCheck<MongoDbHealthCheck>("mongoDb", tags: new List<string> { "storage", "db" })
+            .AddCheck<KafkaHealthCheck>("kafka", tags: new List<string> { "messaging", "topic" });
+
+        services.AddHostedService<ServiceHealthCheck>();
+
+        // Add Logger
+        services.AddCustomLogging(options =>
+        {
+            options.ServiceName = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "PurchaseOrder";
+        });
+
+        // Add Mongo
+        services.AddMongoWithRepositories();
+
+        return services;
+    }
+}
+
+[ExcludeFromCodeCoverage]
+public class ConfigureKafkaSettings(IConfiguration configuration) : IConfigureOptions<KafkaSettings>
+{
+    public void Configure(KafkaSettings kafkaSettings)
+    {
+        configuration.Bind("KafkaSettings", kafkaSettings);
+        kafkaSettings.Brokers = Environment.GetEnvironmentVariable("KAFKA_INBOUND_BROKERS").IfEmpty(kafkaSettings.Brokers); 
+        kafkaSettings.TopicName = Environment.GetEnvironmentVariable("KAFKA_INBOUND_TOPICNAME").IfEmpty(kafkaSettings.TopicName); 
+        kafkaSettings.UserName = Environment.GetEnvironmentVariable("KAFKA_INBOUND_USERNAME").IfEmpty(kafkaSettings.UserName); 
+        kafkaSettings.Password = Environment.GetEnvironmentVariable("KAFKA_INBOUND_PASSWORD").IfEmpty(kafkaSettings.Password); 
+    }
+}
