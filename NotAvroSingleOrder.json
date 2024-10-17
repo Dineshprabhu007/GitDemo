@@ -1,0 +1,167 @@
+{
+	"udcBatchCorrelationID": "20241008164714.754",
+	"standardBusinessDocumentHeader": {
+		"headerVersion": "1.0",
+		"sender": [
+			{
+				"identifier": "J.SAINSBURY PLC",
+				"contactInformation": {
+					"contactTypeIdentifier": "Purchase Order Management"
+				}
+			}
+		],
+		"receiver": [
+			{
+				"identifier": "Logistics Platform",
+				"contactInformation": {
+					"contactTypeIdentifier": "LSP"
+				}
+			}
+		],
+		"documentIdentification": {
+			"standard": "GS1",
+			"typeVersion": "3.1",
+			"instanceIdentifier": "202410080414",
+			"type": "Purchase Order",
+			"multipleType": false,
+			"creationDateTime": "2024-10-08T16:47:14.7554309+00:00"
+		}
+	},
+	"order": [
+	{
+			"creationDateTime": "2024-10-08T10:36:41+01:00",
+			"documentStatusCode": "ORIGINAL",
+			"documentActionCode": "ADD",
+			"documentStructureVersion": "3.5",
+			"lastUpdateDateTime": "2024-10-08T16:47:16.3993111+00:00",
+			"revisionNumber": 1,
+			"documentEffectiveDate": {
+				"date": "2008-10-24",
+				"time": "10:36:41"
+			},
+			"orderIdentification": {
+				"entityIdentifier": "SCNDF99"
+			},
+			"orderTypeCode": "0000",
+			"buyer": {
+				"additionalPartyIdentification": [
+					{
+						"additionalPartyIdentificationTypeCode": null,
+						"additionalPartyIdentificationValue": null
+					}
+				]
+			},
+			"seller": {
+				"additionalPartyIdentification": [
+					{
+						"additionalPartyIdentificationTypeCode": null,
+						"additionalPartyIdentificationValue": null
+					}
+				]
+			},
+			"pickupFrom": {
+				"additionalPartyIdentification": [
+					{
+						"additionalPartyIdentificationTypeCode": "FOR_INTERNAL_USE_3",
+						"additionalPartyIdentificationValue": "02"
+					}
+				]
+			},
+			"orderLogisticalInformation": {
+				"shipFrom": {
+					"additionalPartyIdentification": []
+				},
+				"shipTo": {
+					"additionalPartyIdentification": [
+						{
+							"additionalPartyIdentificationTypeCode": "FOR_INTERNAL_USE_1",
+							"additionalPartyIdentificationValue": "ej97pe"
+						},
+						{
+							"additionalPartyIdentificationTypeCode": "FOR_INTERNAL_USE_2",
+							"additionalPartyIdentificationValue": "003"
+						}
+					]
+				},
+				"orderLogisticalDateInformation": {
+					"requestedDeliveryDateTime": {
+						"date": "2024-10-10",
+						"time": "01:00:00"
+					}
+				},
+				"avpList": [
+					{
+						"name": "udcChamberNumber",
+						"value": "0003"
+					},
+					{
+						"name": "udcBookingnumber",
+						"value": "BA0042"
+					},
+					{
+						"name": "udcForecastedpallets",
+						"value": "0000"
+					},
+					{
+						"name": "udcBookedpallets",
+						"value": "0024"
+					},
+					{
+						"name": "udcPCCPlaceId",
+						"value": "Z9024"
+					},
+					{
+						"name": "udcVehiclenumber",
+						"value": "78515"
+					}
+				],
+				"orderLineItem": [
+					{
+						"lineItemNumber": 0,
+						"requestedQuantity": {
+							"measurementUnitCode": "CS",
+							"value": 3360.0
+						},
+						"lineItemActionCode": "ADDITION",
+						"transactionalTradeItem": {
+							"gtin": null,
+							"additionalTradeItemIdentification": [
+								{
+									"additionalTradeItemIdentificationTypeCode": "FOR_INTERNAL_USE_1",
+									"additionalTradeItemIdentificationValue": "xt8mgz3t"
+								},
+								{
+									"additionalTradeItemIdentificationTypeCode": "FOR_INTERNAL_USE_2",
+									"additionalTradeItemIdentificationValue": "3475751"
+								}
+							],
+							"tradeItemDescription": "None"
+						},
+						"avpList": [
+							{
+								"name": "udcPacksize",
+								"value": "0006"
+							},
+							{
+								"name": "udcCorporateOwnershipOwner",
+								"value": "GROUP_OWNED"
+							},
+							{
+								"name": "udcCorporateOwnershipSubOwner",
+								"value": "SAINSBURYS"
+							},
+							{
+								"name": "udcCorporateOwnershipType",
+								"value": "BONDED"
+							},
+							{
+								"name": "udcSupplierName",
+								"value": "Z9024"
+							}
+						]
+					}
+				]
+			}
+		}
+		]
+		}
