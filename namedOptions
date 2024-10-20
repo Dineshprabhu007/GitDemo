@@ -1,0 +1,67 @@
+using MongoDB.Driver;
+
+namespace LogisticsPlatform.ACL.Publish.Infrastructure.Options
+{
+    public class ConfigureMongoDbSettings : IConfigureNamedOptions<MongoDbSettings>
+    {
+        private readonly IConfiguration _configuration;
+
+        public ConfigureMongoDbSettings(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        public void Configure(string name, MongoDbSettings options)
+        {
+            _configuration.Bind(nameof(MongoDbSettings), options);
+
+            if (name.Equals("Depot", StringComparison.OrdinalIgnoreCase))
+            {
+                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__DEPOT__CONNECTIONSTRING");
+                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__DEPOT__DATABASENAME");
+                options.CollectionName = Environment.GetEnvironmentVariable("MONGO__DEPOT__COLLECTIONNAME");
+            }
+            else if (name.Equals("Product", StringComparison.OrdinalIgnoreCase))
+            {
+                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__PRODUCT__CONNECTIONSTRING");
+                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__PRODUCT__DATABASENAME");
+                options.CollectionName = Environment.GetEnvironmentVariable("MONGO__PRODUCT__COLLECTIONNAME");
+            }
+            else if (name.Equals("Location", StringComparison.OrdinalIgnoreCase))
+            {
+                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__LOCATION__CONNECTIONSTRING");
+                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__LOCATION__DATABASENAME");
+                options.CollectionName = Environment.GetEnvironmentVariable("MONGO__LOCATION__COLLECTIONNAME");
+            }
+            else if (name.Equals("Supplier", StringComparison.OrdinalIgnoreCase))
+            {
+                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__SUPPLIER__CONNECTIONSTRING");
+                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__SUPPLIER__DATABASENAME");
+                options.CollectionName = Environment.GetEnvironmentVariable("MONGO__SUPPLIER__COLLECTIONNAME");
+            }
+            else if (name.Equals("MasterSupplier", StringComparison.OrdinalIgnoreCase))
+            {
+                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__MASTERSUPPLIER__CONNECTIONSTRING");
+                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__MASTERSUPPLIER__DATABASENAME");
+                options.CollectionName = Environment.GetEnvironmentVariable("MONGO__MASTERSUPPLIER__COLLECTIONNAME");
+            }
+            else
+            {
+                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__CONNECTIONSTRING");
+                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__DATABASENAME");
+            }
+            options.MongoDownTime = Convert.ToInt16(Environment.GetEnvironmentVariable("MONGO_DOWN_WAIT_TIME").IfEmpty(options.MongoDownTime.ToString()));
+
+            var clientSettings = MongoClientSettings.FromConnectionString(options.ConnectionString);
+            clientSettings.MaxConnectionIdleTime = new TimeSpan(0, 0, 59);
+            clientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(options.MongoDownTime);
+            clientSettings.MaxConnectionPoolSize = 500;
+            clientSettings.RetryReads = true;
+            clientSettings.AllowInsecureTls = false;
+
+            options.MongoClientSettings = clientSettings;
+        }
+
+        public void Configure(MongoDbSettings options) => Configure(string.Empty, options);
+    }
+}
