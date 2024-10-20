@@ -65,3 +65,32 @@ namespace LogisticsPlatform.ACL.Publish.Infrastructure.Options
         public void Configure(MongoDbSettings options) => Configure(string.Empty, options);
     }
 }
+
+
+
+
+public static class DependencyInjection
+{
+    public static IServiceCollection ConfigureInfrastructure(this IServiceCollection services)
+    {
+        services.ConfigureOptions<ConfigureMongoDbSettings>();
+        services.ConfigureMongoSettings<MongoDbSettings>();
+         return services;
+}
+}
+public class Main
+{
+public static void Main(string[] args)
+{
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .ConfigureInfrastructure()
+    .ConfigureApplication();
+
+await builder.Build().RunAsync();
+
+[ExcludeFromCodeCoverage]
+public static partial class Program { }
+}
+}
