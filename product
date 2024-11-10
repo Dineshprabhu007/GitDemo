@@ -1,0 +1,108 @@
+using LogisticsPlatform.Connector.Subscribe.Domain.Models;
+using Microsoft.Extensions.Caching.Memory;
+using MongoDB.Driver;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace LogisticsPlatform.Connector.Subscribe.Infrastructure.Mongo
+{
+    [ExcludeFromCodeCoverage]
+    public class ProductPlatformRepository : IProductPlatformRepository
+    {
+        private readonly ILogHelper<ProductPlatformRepository> _logger;
+        private readonly IMongoCollection<ProductLookup> _collection;
+        private readonly MongoClient _client;
+        private readonly MongoDbSettings _settings;
+        private readonly int _maxRetries;
+        private readonly int _delayBetweenRetries;
+
+        public ProductPlatformRepository(ILogHelper<ProductPlatformRepository> logger, IOptions<AppSettings> appSettings,IOptionsSnapshot<MongoDbSettings> mongoDBSettings)
+        {
+            _settings = mongoDBSettings.Get("ProductLookup");
+            _logger = logger;
+            _client = new MongoClient(_settings.ConnectionString);
+            IMongoDatabase database = _client.GetDatabase(_settings.DatabaseName);
+            _collection = database.GetCollection<ProductLookup>(_settings.CollectionName);
+            _maxRetries = _settings.MaximumRetryAttempts;
+            _delayBetweenRetries = _settings.MongoDownTime;
+        }
+
+
+        public async Task<ProductLookupStatus> GetProductDetailsAsync(List<string> sku)
+        {
+            int retryCount = 0;
+            ProductLookupStatus productLookupStatus = new()
+            {
+                IsProductRetrived = false,
+                ProductLookups = null,
+                Exception = string.Empty
+            };
+            while (retryCount <= _maxRetries)
+            {
+                try
+                {
+                    //throw new TimeoutException();
+                    var filter = Builders<ProductLookup>.Filter.In(a => a.SainsburysSku, sku);
+                    var projection = Builders<ProductLookup>.Projection
+                                    .Include(p => p.SainsburysSku)
+                                    .Include(p => p.Department)
+                                    .Include(p => p.Commodity);
+                    productLookupStatus.ProductLookups = await _collection.Find(filter).Project<ProductLookup>(projection).ToListAsync();
+
+                    if (productLookupStatus.ProductLookups.Count > 0)
+                    {
+                        _logger.LogInfo(LogStatus.InProgress, $"Product Collection retrived successfully. Count: {productLookupStatus.ProductLookups.Count}");
+                        productLookupStatus.IsProductRetrived = true;
+                        return productLookupStatus;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("The list is empty.");
+                    }
+                }
+                catch (MongoConnectionException ex)
+                {
+                    productLookupStatus.IsProductRetrived = false;
+                    productLookupStatus.ProductLookups = null;
+                    productLookupStatus.Exception=ex.GetType().Name;
+                    _logger.LogWarning(LogStatus.Failed, $"MongoDB connection error. Retrying {retryCount}/{_maxRetries}. Error: {ex.Message}");
+                    retryCount++;
+                    await Task.Delay(TimeSpan.FromSeconds(_delayBetweenRetries) * retryCount);
+                }
+                catch (TimeoutException ex)
+                {
+                    productLookupStatus.IsProductRetrived = false;
+                    productLookupStatus.ProductLookups = null;
+                    productLookupStatus.Exception = ex.GetType().Name;
+                    _logger.LogWarning(LogStatus.Failed, $"MongoDB connection error. Retrying {retryCount}/{_maxRetries}. Error: {ex.Message}");
+                    retryCount++;
+                    await Task.Delay(TimeSpan.FromSeconds(_delayBetweenRetries) * retryCount);
+                }
+                catch (MongoExecutionTimeoutException ex)
+                {
+                    productLookupStatus.IsProductRetrived = false;
+                    productLookupStatus.ProductLookups = null;
+                    productLookupStatus.Exception = ex.GetType().Name;
+                    _logger.LogWarning(LogStatus.Failed, $"MongoDB connection error. Retrying {retryCount}/{_maxRetries}. Error: {ex.Message}");
+                    retryCount++;
+                    await Task.Delay(TimeSpan.FromSeconds(_delayBetweenRetries) * retryCount);
+                }
+                catch (Exception ex)
+                {
+                    productLookupStatus.Exception = ex.GetType().Name;
+                    productLookupStatus.IsProductRetrived = false;
+                    productLookupStatus.ProductLookups = null;
+                    //_logger.LogError(LogErrors.LookupDBIsUnavailable, LogStatus.Failed, "Exception occurred during product department and commodity lookup",
+                    //        $"Message: {ex.Message}, StackTrace: {ex.StackTrace}.JSON file details for reference,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}");
+
+                    return productLookupStatus;
+                }
+            }
+            return productLookupStatus;
+            
+        }
+    }
+}
