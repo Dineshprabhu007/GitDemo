@@ -1,96 +1,221 @@
-using MongoDB.Driver;
-
-namespace LogisticsPlatform.ACL.Publish.Infrastructure.Options
+public async Task<InputValidation> ValidateInputAsync(PurchaseOrder purchaseOrder)
 {
-    public class ConfigureMongoDbSettings : IConfigureNamedOptions<MongoDbSettings>
+    InputValidation validation = new InputValidation();
+    int orderIndex = 0, orderLineIndex = 0;
+    try
     {
-        private readonly IConfiguration _configuration;
-
-        public ConfigureMongoDbSettings(IConfiguration configuration)
+        if (purchaseOrder.Order.Count != 0)
         {
-            _configuration = configuration;
+            foreach (var order in purchaseOrder.Order)
+            {
+                if (order != null && order.OrderLogisticalInformation.OrderLineItem.Count!=0)
+                {
+                    foreach (var orderLine in order.OrderLogisticalInformation.OrderLineItem)
+                    {
+                        if (orderLine != null)
+                        {
+                            //SupplierGroupCode
+                            if (string.IsNullOrEmpty(order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcSupplygroupnumber", StringComparison.OrdinalIgnoreCase))?.Value.ToString()))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in SupplierGroupCode Validation it may be NULL or empty,Json field:order[{orderIndex}].OrderLogisticalInformation.AvpList:udcSupplygroupnumber,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in SupplierGroupCode Validation it may be NULL or empty,Json field:order[{orderIndex}].OrderLogisticalInformation.AvpList:udcSupplygroupnumber,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}");
+                                break;
+                            }
+                            //SupplierGroupLocationCode
+                            if (string.IsNullOrEmpty(order.PickupFrom?.AdditionalPartyIdentification?.Find(x => x.AdditionalPartyIdentificationTypeCode.Equals(Defaults.InternalUse3, StringComparison.OrdinalIgnoreCase))?.AdditionalPartyIdentificationValue))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in SupplierGroupLocationCode Validation it may be NULL or empty,Json field:order[{orderIndex}].pickupFrom.additionalPartyIdentification.additionalPartyIdentificationTypeCode:FOR_INTERNAL_USE_3,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in SupplierGroupLocationCode Validation it may be NULL or empty,Json field:order[{orderIndex}].pickupFrom.additionalPartyIdentification.additionalPartyIdentificationTypeCode:FOR_INTERNAL_USE_3,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}");
+                                break;
+                            }
+                            //ProductCatalogueNumber=>Department,Commodity
+                            if (string.IsNullOrEmpty(orderLine.TransactionalTradeItem?.AdditionalTradeItemIdentification?.Find(x => x.AdditionalTradeItemIdentificationTypeCode.Equals(Defaults.InternalUse2, StringComparison.OrdinalIgnoreCase))?.AdditionalTradeItemIdentificationValue))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in ProductCatalogueNumber Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.orderLineItem[{orderLineIndex}].transactionalTradeItem.additionalTradeItemIdentification.additionalTradeItemIdentificationTypeCode:FOR_INTERNAL_USE_2,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in ProductCatalogueNumber Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.orderLineItem[{orderLineIndex}].transactionalTradeItem.additionalTradeItemIdentification.additionalTradeItemIdentificationTypeCode:FOR_INTERNAL_USE_2,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}");
+                                break;
+                            }
+                            //PackSize
+                            if (string.IsNullOrEmpty(orderLine.AvpList?.Find(x => x.Name.Equals("udcPacksize", StringComparison.OrdinalIgnoreCase))?.Value?.ToString()))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in PackSize Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.orderLineItem[{orderLineIndex}].avpList:udcPacksize,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in PackSize Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.orderLineItem[{orderLineIndex}].avpList:udcPacksize,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}");
+                                break;
+                            }
+                            // WarehouseNumber
+                            if (string.IsNullOrEmpty(order.OrderLogisticalInformation?.ShipTo?.AdditionalPartyIdentification?.Find(x => x.AdditionalPartyIdentificationTypeCode.Equals(Defaults.InternalUse2, StringComparison.OrdinalIgnoreCase))?.AdditionalPartyIdentificationValue))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in WarehouseNumber Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.shipTo.additionalPartyIdentification.additionalPartyIdentificationTypeCode:FOR_INTERNAL_USE_2,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in WarehouseNumber Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.shipTo.additionalPartyIdentification.additionalPartyIdentificationTypeCode:FOR_INTERNAL_USE_2,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}");
+                                break;
+                            }
+                            //WarehouseCode
+                            if (string.IsNullOrEmpty(order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcChamberNumber", StringComparison.OrdinalIgnoreCase))?.Value?.ToString()))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in WarehouseCode Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.avpList:udcChamberNumber,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in WarehouseCode Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.avpList:udcChamberNumber,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}");
+                                break;
+                            }
+                            //QuantityOrdered
+                            if ((orderLine.RequestedQuantity?.Value ?? 0) <= 0)
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in QuantityOrdered Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.orderLineItem[{orderLineIndex}].requestedQuantity.value,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in QuantityOrdered Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.orderLineItem[{orderLineIndex}].requestedQuantity.value,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}");
+                                break;
+                            }
+                            //BookingReference
+                            if (string.IsNullOrEmpty(order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcBookingnumber", StringComparison.OrdinalIgnoreCase))?.Value?.ToString()))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in BookingReference Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.avpList:udcBookingnumber,OrderIndex:{orderIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in BookingReference Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.avpList:udcBookingnumber,OrderIndex:{orderIndex}");
+                                break;
+                            }
+                            //Supplier
+                            if (string.IsNullOrEmpty(order?.OrderLogisticalInformation?.ShipFrom?.AdditionalPartyIdentification?.Find(x => x.AdditionalPartyIdentificationTypeCode.Equals(Defaults.InternalUse2, StringComparison.OrdinalIgnoreCase))?.AdditionalPartyIdentificationValue))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in Supplier Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.shipFrom.additionalPartyIdentification.additionalPartyIdentificationTypeCode:FOR_INTERNAL_USE_2,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in Supplier Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.shipFrom.additionalPartyIdentification.additionalPartyIdentificationTypeCode:FOR_INTERNAL_USE_2,OrderIndex:{orderIndex},OrderLineIndex:{orderLineIndex}");
+                                break;
+                            }
+                            //FullPalletEquivalentToCome
+                            if (string.IsNullOrEmpty(order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcForecastedpallets", StringComparison.OrdinalIgnoreCase))?.Value?.ToString()))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in FullPalletEquivalentToCome Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.avpList:udcBookedpallets,OrderIndex:{orderIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in FullPalletEquivalentToCome Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.avpList:udcBookedpallets,OrderIndex:{orderIndex}");
+                                break;
+                            }
+                            //ScionVehicleID
+                            if (string.IsNullOrEmpty(order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcVehiclenumber", StringComparison.OrdinalIgnoreCase))?.Value?.ToString()))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in ScionVehicleID Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.avpList:udcVehiclenumber,OrderIndex:{orderIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in ScionVehicleID Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.avpList:udcVehiclenumber,OrderIndex:{orderIndex}");
+                                break;
+                            }
+                            //BookedPallets
+                            if (string.IsNullOrEmpty(order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcBookedpallets", StringComparison.OrdinalIgnoreCase))?.Value?.ToString()))
+                            {
+                                _logHelper.LogError(LogErrors.DataValidationError, $"Error occurred in ScionVehicleID Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.avpList:udcBookedpallets,OrderIndex:{orderIndex}.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+                                validation.Errors.Add($"Error occurred in ScionVehicleID Validation it may be NULL or empty,Json field:order[{orderIndex}].orderLogisticalInformation.avpList:udcBookedpallets,OrderIndex:{orderIndex}");
+                                break;
+                            }
+                            orderLineIndex++;
+                        }
+                        else
+                        {
+                            throw new ArgumentNullException(nameof(OrderLineItem),$"The object of type:PurchaseOrder.Order.OrderLogisticalInformation.OrderLineItem can't be NULL.The JSON object order[{orderIndex}].orderLogisticalInformation.orderLineItem[{orderLineIndex}] is NULL");
+                        }
+                    }
+                    if (validation.Errors.Count > 0)
+                    {
+                        break;
+                    }
+                    orderIndex++;
+                    orderLineIndex = 0;
+                }
+                else
+                {
+                    throw new ArgumentException($"The object of type:PurchaseOrder.Order is NULL or type:PurchaseOrder.Order.OrderLogisticalInformation.OrderLineItem is empty.The JSON object order[{orderIndex}] is NULL or its orderLineItem is empty.");
+                }
+
+            }
+        } 
+        else
+        {
+            throw new ArgumentException($"The object of type:PurchaseOrder.Order can't be empty.");
         }
 
-        public void Configure(string name, MongoDbSettings options)
-        {
-            _configuration.Bind(nameof(MongoDbSettings), options);
-
-            if (name.Equals("Depot", StringComparison.OrdinalIgnoreCase))
-            {
-                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__DEPOT__CONNECTIONSTRING");
-                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__DEPOT__DATABASENAME");
-                options.CollectionName = Environment.GetEnvironmentVariable("MONGO__DEPOT__COLLECTIONNAME");
-            }
-            else if (name.Equals("Product", StringComparison.OrdinalIgnoreCase))
-            {
-                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__PRODUCT__CONNECTIONSTRING");
-                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__PRODUCT__DATABASENAME");
-                options.CollectionName = Environment.GetEnvironmentVariable("MONGO__PRODUCT__COLLECTIONNAME");
-            }
-            else if (name.Equals("Location", StringComparison.OrdinalIgnoreCase))
-            {
-                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__LOCATION__CONNECTIONSTRING");
-                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__LOCATION__DATABASENAME");
-                options.CollectionName = Environment.GetEnvironmentVariable("MONGO__LOCATION__COLLECTIONNAME");
-            }
-            else if (name.Equals("Supplier", StringComparison.OrdinalIgnoreCase))
-            {
-                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__SUPPLIER__CONNECTIONSTRING");
-                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__SUPPLIER__DATABASENAME");
-                options.CollectionName = Environment.GetEnvironmentVariable("MONGO__SUPPLIER__COLLECTIONNAME");
-            }
-            else if (name.Equals("MasterSupplier", StringComparison.OrdinalIgnoreCase))
-            {
-                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__MASTERSUPPLIER__CONNECTIONSTRING");
-                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__MASTERSUPPLIER__DATABASENAME");
-                options.CollectionName = Environment.GetEnvironmentVariable("MONGO__MASTERSUPPLIER__COLLECTIONNAME");
-            }
-            else
-            {
-                options.ConnectionString = Environment.GetEnvironmentVariable("MONGO__CONNECTIONSTRING");
-                options.DatabaseName = Environment.GetEnvironmentVariable("MONGO__DATABASENAME");
-            }
-            options.MongoDownTime = Convert.ToInt16(Environment.GetEnvironmentVariable("MONGO_DOWN_WAIT_TIME").IfEmpty(options.MongoDownTime.ToString()));
-
-            var clientSettings = MongoClientSettings.FromConnectionString(options.ConnectionString);
-            clientSettings.MaxConnectionIdleTime = new TimeSpan(0, 0, 59);
-            clientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(options.MongoDownTime);
-            clientSettings.MaxConnectionPoolSize = 500;
-            clientSettings.RetryReads = true;
-            clientSettings.AllowInsecureTls = false;
-
-            options.MongoClientSettings = clientSettings;
-        }
-
-        public void Configure(MongoDbSettings options) => Configure(string.Empty, options);
     }
-}
-
-
-
-
-public static class DependencyInjection
-{
-    public static IServiceCollection ConfigureInfrastructure(this IServiceCollection services)
+    catch (Exception ex)
     {
-        services.ConfigureOptions<ConfigureMongoDbSettings>();
-        services.ConfigureMongoSettings<MongoDbSettings>();
-         return services;
-}
-}
-public class Main
-{
-public static void Main(string[] args)
-{
-HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+        validation.Exception = ex;
+        validation.Errors.Add($"Error occurred in Input Validation.{ex.Message}{ex.StackTrace}{ex.Source}");
+        _logHelper.LogError(7013, $"Error in validating Input Data.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+            "Exception occurred while validating deserilized input json",
+                $"{ex.Message}{ex.StackTrace}{ex.Source}",
+                purchaseOrder.GetKey1(), purchaseOrder.GetKey2());
+    }
+    return await Task.FromResult(validation);
 
-builder.Services
-    .ConfigureInfrastructure()
-    .ConfigureApplication();
 
-await builder.Build().RunAsync();
 
-[ExcludeFromCodeCoverage]
-public static partial class Program { }
-}
+
+    public async Task<OutputMapContent> MapInputAsync(PurchaseOrder model, List<ProductLookup> productLookups)
+    {
+        OutputMapContent outputMapContent = new();
+        int orderIndex = 0, orderLineIndex = 0;
+        try
+        {
+            foreach (var order in model.Order)
+            {
+                foreach (var orderLine in order.OrderLogisticalInformation.OrderLineItem)
+                {
+                    var poOutbound = new PoOutbound()
+                    {
+                        Uuid = Guid.NewGuid().ToString(),
+                        DateTime = DateTime.Now,
+                        KafkaUniqueMessageIdentifier = $"{KafkaTracker.Offset},{KafkaTracker.Partition},{KafkaTracker.Topic}",
+                        FileCreateDate = DateOnly.FromDateTime(order.CreationDateTime).ToString(),
+                        FileCreateTime = TimeOnly.FromDateTime(order.CreationDateTime).ToString("HH:mm:ss"),
+                        SupplierGroupCode = order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcSupplygroupnumber", StringComparison.OrdinalIgnoreCase))?.Value.ToString(),
+                        SupplierGroupLocationCode = order.PickupFrom?.AdditionalPartyIdentification?.Find(x => x.AdditionalPartyIdentificationTypeCode.Equals(Defaults.InternalUse3, StringComparison.OrdinalIgnoreCase))?.AdditionalPartyIdentificationValue,
+                        Department = productLookups?.Find(x => x.SainsburysSku.Equals(orderLine?.TransactionalTradeItem?.AdditionalTradeItemIdentification?.Find(x => x.AdditionalTradeItemIdentificationTypeCode.Equals(Defaults.InternalUse2, StringComparison.OrdinalIgnoreCase))?.AdditionalTradeItemIdentificationValue))?.Department ?? "0000",
+                        Commodity = productLookups?.Find(x => x.SainsburysSku.Equals(orderLine?.TransactionalTradeItem?.AdditionalTradeItemIdentification?.Find(x => x.AdditionalTradeItemIdentificationTypeCode.Equals(Defaults.InternalUse2, StringComparison.OrdinalIgnoreCase))?.AdditionalTradeItemIdentificationValue))?.Commodity ?? "0000",
+                        PackSize = orderLine.AvpList?.Find(x => x.Name.Equals("udcPacksize", StringComparison.OrdinalIgnoreCase))?.Value.ToString(),
+                        WarehouseNumber = order.OrderLogisticalInformation?.ShipTo?.AdditionalPartyIdentification?.Find(x => x.AdditionalPartyIdentificationTypeCode.Equals(Defaults.InternalUse2, StringComparison.OrdinalIgnoreCase))?.AdditionalPartyIdentificationValue,
+                        //WarehouseCode = order.OrderLogisticalInformation?.ShipTo?.AdditionalPartyIdentification?.FirstOrDefault(x => x.AdditionalPartyIdentificationTypeCode.Equals("FOR_INTERNAL_USE_2", StringComparison.OrdinalIgnoreCase))?.AdditionalPartyIdentificationValue,
+                        WarehouseCode = order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcChamberNumber", StringComparison.OrdinalIgnoreCase))?.Value.ToString(),
+                        ActualDeliveryDate = (order.OrderLogisticalInformation.OrderLogisticalDateInformation.RequestedDeliveryDateTime.Date).ToString(),
+                        DeliveryTime = (order.OrderLogisticalInformation.OrderLogisticalDateInformation.RequestedDeliveryDateTime.Time).ToString("HH:mm:ss"),
+                        QuantityOrdered =(int) (orderLine.RequestedQuantity?.Value ?? 0),
+                        BookingReference = order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcBookingnumber", StringComparison.OrdinalIgnoreCase))?.Value.ToString(),
+                        Supplier = order?.OrderLogisticalInformation?.ShipFrom?.AdditionalPartyIdentification?.Find(x => x.AdditionalPartyIdentificationTypeCode.Equals(Defaults.InternalUse2))?.AdditionalPartyIdentificationValue,
+                        //Supplier = orderLine.AvpList?.FirstOrDefault(x => x.Name.Equals("udcSupplierName", StringComparison.OrdinalIgnoreCase))?.Value.ToString(),
+                        FullPalletEquivalentToCome = (order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcForecastedpallets", StringComparison.OrdinalIgnoreCase))?.Value.ToString()) ?? "0000",
+                        BookedPallets = order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcBookedpallets", StringComparison.OrdinalIgnoreCase))?.Value.ToString(),
+                        ScionVehicleID = order.OrderLogisticalInformation?.AvpList?.Find(x => x.Name.Equals("udcVehiclenumber", StringComparison.OrdinalIgnoreCase))?.Value.ToString(),
+                        Sku = orderLine.TransactionalTradeItem?.AdditionalTradeItemIdentification?.Find(x => x.AdditionalTradeItemIdentificationTypeCode.Equals(Defaults.InternalUse2, StringComparison.OrdinalIgnoreCase))?.AdditionalTradeItemIdentificationValue
+                    };
+                    outputMapContent.PO.Add(poOutbound);
+                    orderLineIndex++;
+                }
+                orderIndex++;
+                orderLineIndex = 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            outputMapContent.Errors.Add($"ErrorDescription: Error In Mapping Input Data,OrderIndex:{orderIndex} & OrderLineIndex:{orderLineIndex} - {ex.Message} {ex.StackTrace}");
+        }
+        finally
+        {
+            if (outputMapContent.Errors.Count != 0)
+            {
+                outputMapContent.PO = null;
+                _logHelper.LogError(7013,
+                $"Exception occurred while mapping input data.Consumed message details,KafkaTopic:{KafkaTracker.Topic},Offset:{KafkaTracker.Offset},Partition:{KafkaTracker.Partition}",
+                    $"{string.Join(Environment.NewLine, outputMapContent.Errors)}",
+                    model.GetKey1(), model.GetKey2());
+            }
+         
+        }
+        //start-testing purpose
+        //outputMapContent.PO[0].Uuid = "2881f071-1614-4a95-a36e-f2c0391331cb";
+        //end
+        return await Task.FromResult(outputMapContent);
+    }
+    #endregion
+
+
 }
